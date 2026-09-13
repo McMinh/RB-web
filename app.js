@@ -10,6 +10,7 @@ let cardMap = {};       // id -> card object
 // KHỞI TẠO
 // ============================================
 document.addEventListener('DOMContentLoaded', async () => {
+    document.body.style.overflow = '';
     await loadCardDatabase();
     setupTabs();
     setupEventListeners();

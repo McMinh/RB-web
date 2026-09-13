@@ -448,10 +448,16 @@ code {
     align-items: center;
     justify-content: center;
     padding: 20px;
+    /* THÊM 2 DÒNG NÀY */
+    pointer-events: none;   /* khi ẩn thì không chặn click */
+    visibility: hidden;
 }
 
 .modal.active {
     display: flex;
+    /* THÊM 2 DÒNG NÀY */
+    pointer-events: auto;   /* khi hiện thì nhận click */
+    visibility: visible;
 }
 
 .modal-inner {
