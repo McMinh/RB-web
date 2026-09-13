@@ -745,3 +745,36 @@ function setupModal() {
         if (e.key === 'Escape') closeImageModal();
     });
 }
+
+// ============================================
+// EVENT DELEGATION — Gắn 1 lần cho toàn bộ document
+// ============================================
+document.addEventListener('click', (e) => {
+    const btn = e.target.closest('[data-action]');
+    if (!btn) return;
+    
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const id = btn.dataset.id;
+    const action = btn.dataset.action;
+    console.log(`👆 Delegated click: ${action} / ${id}`);
+    
+    if (action === 'inc') changeQty(id, 1);
+    if (action === 'dec') changeQty(id, -1);
+    if (action === 'del') {
+        if (confirm(`Xóa thẻ ${id} khỏi bộ sưu tập?`)) {
+            changeQty(id, -9999);
+        }
+    }
+});
+
+// Click ảnh → modal
+document.addEventListener('click', (e) => {
+    const img = e.target.closest('.card-thumb');
+    if (!img) return;
+    e.stopPropagation();
+    if (img.dataset.cardId) {
+        openImageModal(img.dataset.cardId);
+    }
+});
