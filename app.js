@@ -748,33 +748,32 @@ function setupModal() {
 }
 
 // ============================================
-// GLOBAL EVENT DELEGATION
-// Đặt ở CUỐI FILE, NGOÀI mọi hàm
+// EVENT DELEGATION - GLOBAL CLICK HANDLER
+// Đặt ở CUỐI FILE, NGOÀI MỌI HÀM
 // ============================================
 document.addEventListener('click', function(e) {
-    // Nút thêm/bớt/xóa
+    // Xử lý nút thêm/bớt/xóa
     const btn = e.target.closest('[data-action]');
     if (btn) {
         e.preventDefault();
-        e.stopImmediatePropagation();
+        e.stopPropagation();
         
         const id = btn.dataset.id;
         const action = btn.dataset.action;
+        console.log('🖱️ Click:', action, '/', id);
         
         if (action === 'inc') changeQty(id, 1);
         else if (action === 'dec') changeQty(id, -1);
         else if (action === 'del') {
-            if (confirm(`Xóa thẻ ${id} khỏi bộ sưu tập?`)) {
-                changeQty(id, -9999);
-            }
+            if (confirm('Xóa thẻ ' + id + '?')) changeQty(id, -9999);
         }
         return;
     }
     
-    // Click ảnh mở modal
+    // Xử lý click ảnh mở modal
     const img = e.target.closest('.card-thumb');
     if (img && img.dataset.cardId) {
         e.stopPropagation();
         openImageModal(img.dataset.cardId);
     }
-}, true);
+});
