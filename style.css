@@ -324,3 +324,80 @@ code {
         font-size: 1.8em;
     }
 }
+.card-item {
+    overflow: hidden;
+    padding: 0;  /* Bỏ padding cũ để ảnh tràn viền */
+}
+
+.card-image {
+    width: 100%;
+    aspect-ratio: 3 / 4;  /* Tỷ lệ thẻ TCG chuẩn */
+    background: linear-gradient(135deg, #1a1a2e, #16213e);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.card-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    transition: transform 0.3s ease;
+    display: block;
+}
+
+.card-item:hover .card-image img {
+    transform: scale(1.05);
+}
+
+/* Placeholder khi không có ảnh */
+.card-image-placeholder {
+    font-size: 3em;
+    color: rgba(255, 255, 255, 0.15);
+    user-select: none;
+}
+
+/* Badge số lượng overlay lên ảnh */
+.card-qty-badge {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: linear-gradient(135deg, #f39c12, #e74c3c);
+    color: white;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: bold;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
+    z-index: 2;
+}
+
+/* Nội dung card bên dưới ảnh */
+.card-body {
+    padding: 12px 14px 14px;
+}
+
+/* Loading state cho ảnh */
+.card-image img[data-src] {
+    opacity: 0;
+    transition: opacity 0.3s;
+}
+
+.card-image img.loaded {
+    opacity: 1;
+}
+
+.card-price {
+    position: absolute;
+    bottom: 8px;
+    right: 8px;
+    background: rgba(0, 0, 0, 0.75);
+    color: #f39c12;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-size: 0.85em;
+    font-weight: bold;
+    z-index: 2;
+}

@@ -147,6 +147,7 @@ function renderCollection() {
     }
 
     container.innerHTML = entries.map(e => cardHTML(e.card, e.qty, e.id, true)).join('');
+    setupLazyLoad();
 
     // Gắn sự kiện
     container.querySelectorAll('[data-action]').forEach(btn => {
@@ -168,27 +169,44 @@ function cardHTML(card, qty, id, showActions = false) {
     const domain = card?.domain || '';
     const rarity = card?.rarity || '';
     const type = card?.type || '';
+    const image = card?.image || '';
+    const price = card?.marketPrice;
+    const priceHTML = price != null 
+    ? `<div class="card-price">$${price.toFixed(2)}</div>` 
+    : '';
 
+    // Tags
     const tags = [];
     if (domain) tags.push(`<span class="tag domain-${domain}">${domain}</span>`);
     if (rarity) tags.push(`<span class="tag rarity-${rarity}">${rarity}</span>`);
-    if (type) tags.push(`<span class="tag">${type}</span>`);
+    if (type) tags.push(`<span class="tag">${escapeHTML(type)}</span>`);
+
+    // Ảnh hoặc placeholder
+    const imageHTML = image
+        ? `<img src="${escapeHTML(image)}" 
+                alt="${escapeHTML(name)}" 
+                loading="lazy"
+                onerror="this.parentElement.innerHTML='<div class=\\'card-image-placeholder\\'>🃏</div>'">`
+        : `<div class="card-image-placeholder">🃏</div>`;
 
     return `
         <div class="card-item">
-            <div class="card-header">
-                <div class="card-name">${escapeHTML(name)}</div>
-                ${qty > 0 ? `<div class="card-qty">${qty}</div>` : ''}
+            <div class="card-image">
+                ${imageHTML}
+                ${qty > 0 ? `<div class="card-qty-badge">${qty}</div>` : ''}
             </div>
-            <div class="card-id">${escapeHTML(id)}</div>
-            <div class="card-meta">${tags.join('')}</div>
-            ${showActions ? `
-                <div class="card-actions">
-                    <button data-action="dec" data-id="${escapeHTML(id)}">−</button>
-                    <button data-action="inc" data-id="${escapeHTML(id)}">+</button>
-                    <button data-action="del" data-id="${escapeHTML(id)}">🗑️</button>
-                </div>
-            ` : ''}
+            <div class="card-body">
+                <div class="card-name">${escapeHTML(name)}</div>
+                <div class="card-id">${escapeHTML(id)}</div>
+                <div class="card-meta">${tags.join('')}</div>
+                ${showActions ? `
+                    <div class="card-actions">
+                        <button data-action="dec" data-id="${escapeHTML(id)}">−</button>
+                        <button data-action="inc" data-id="${escapeHTML(id)}">+</button>
+                        <button data-action="del" data-id="${escapeHTML(id)}">🗑️</button>
+                    </div>
+                ` : ''}
+            </div>
         </div>
     `;
 }
@@ -493,4 +511,25 @@ function escapeHTML(s) {
     return String(s).replace(/[&<>"']/g, c => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
     }[c]));
+}
+
+// Lazy load ảnh khi cuộn
+function setupLazyLoad() {
+    if (!('IntersectionObserver' in window)) return;
+    
+    const observer = new IntersectionObserver((entries) => {
+        entries.forEach(entry => {
+            if (entry.isIntersecting) {
+                const img = entry.target;
+                if (img.dataset.src) {
+                    img.src = img.dataset.src;
+                    img.removeAttribute('data-src');
+                    img.classList.add('loaded');
+                }
+                observer.unobserve(img);
+            }
+        });
+    }, { rootMargin: '200px' });
+
+    document.querySelectorAll('img[data-src]').forEach(img => observer.observe(img));
 }
