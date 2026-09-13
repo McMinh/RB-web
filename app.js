@@ -236,19 +236,32 @@ function cardHTML(card, qty, id, showActions = false) {
 // THAY ĐỔI SỐ LƯỢNG
 // ============================================
 function changeQty(id, delta) {
+    console.log('🚀 changeQty:', id, delta);
+    
     const collection = loadCollection();
-    if (!collection[id]) return;
-
-    let newQty = collection[id] + delta;
-    if (delta === -9999 || newQty <= 0) {
+    console.log('   Trước:', collection);
+    
+    if (delta === -9999) {
+        // Xóa hoàn toàn
         delete collection[id];
     } else {
-        collection[id] = newQty;
+        // Thêm hoặc bớt
+        let newQty = (collection[id] || 0) + delta;
+        if (newQty <= 0) {
+            delete collection[id];
+        } else {
+            collection[id] = newQty;
+        }
     }
-
+    
+    console.log('   Sau:', collection);
     saveCollection(collection);
+    
     renderCollection();
+    renderSearchResults();   // ← THÊM DÒNG NÀY để refresh tab Tìm thẻ
     renderStats();
+    
+    console.log('   ✅ Đã lưu');
 }
 
 // ============================================
