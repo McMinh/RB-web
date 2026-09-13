@@ -91,53 +91,56 @@ async function fetchAllCards() {
 // CHUẨN HÓA DỮ LIỆU
 // ============================================
 function normalizeCard(raw) {
-    // === ID thẻ: riftbound_id có dạng "unl-229*-219" ===
-    // Chuẩn hóa thành "UNL-229" (uppercase, bỏ phần *-219)
+    // === ID thẻ: giữ dấu * cho thẻ signature ===
     let id = raw.riftbound_id || raw.id || '';
-    id = id.split('*')[0].split('/')[0].toUpperCase();  // "unl-229" → "UNL-229"
     
-    // === Domain: có thể là array nhiều domain ===
+    // Bước 1: Tách phần signature (trước dấu *)
+    // "unl-229*-219" → ["unl-229", "-219"]
+    // "unl-121-219"  → ["unl-121-219"]
+    const starParts = id.split('*');
+    const isSignature = starParts.length > 1;  // có dấu * → signature
+    let baseId = starParts[0];                 // "unl-229"
+    let suffix = starParts[1] || '';           // "-219"
+    
+    // Bước 2: Bỏ hậu tố -NNN ở cuối baseId nếu có
+    // "unl-121-219" → "unl-121"
+    // "unl-229"     → "unl-229" (không đổi)
+    const parts = baseId.split('-');
+    if (parts.length >= 3 && /^\d+$/.test(parts[parts.length - 1])) {
+        baseId = parts.slice(0, -1).join('-');
+    }
+    
+    // Bước 3: Uppercase
+    baseId = baseId.toUpperCase();
+    
+    // Bước 4: Nếu là signature → thêm dấu * vào cuối
+    id = isSignature ? `${baseId}*` : baseId;
+    
+    // === Domain ===
     let domain = raw.classification?.domain || [];
     if (!Array.isArray(domain)) domain = [domain];
-    // Lấy domain chính (hoặc ghép nếu nhiều)
     const domainStr = domain.length > 1 
-        ? domain.join('/')       // "Fury/Order"
+        ? domain.join('/')
         : (domain[0] || '');
-    
-    // === Ảnh: media.image_url ===
-    const image = raw.media?.image_url || '';
-    
-    // === Text ===
-    const text = raw.text?.plain || '';
-    
-    // === Set ===
-    const set = raw.set?.label || raw.set?.set_id || '';
-    
-    // === Rarity: giữ nguyên ===
-    const rarity = raw.classification?.rarity || '';
-    
-    // === Type ===
-    const type = raw.classification?.type || '';
-    const supertype = raw.classification?.supertype || '';
     
     return {
         id: id,
         name: raw.name || '',
-        type: type,
-        supertype: supertype,
+        type: raw.classification?.type || '',
+        supertype: raw.classification?.supertype || '',
         domain: domainStr,
-        rarity: rarity,
-        set: set,
+        rarity: raw.classification?.rarity || '',
+        set: raw.set?.label || '',
         energy: raw.attributes?.energy ?? null,
         might: raw.attributes?.might ?? null,
         power: raw.attributes?.power ?? null,
-        text: text,
-        image: image,
+        text: raw.text?.plain || '',
+        image: raw.media?.image_url || '',
         artist: raw.media?.artist || '',
         tcgplayerId: raw.tcgplayer_id ? parseInt(raw.tcgplayer_id) : null,
         collectorNumber: raw.collector_number ?? null,
         tags: raw.tags || [],
-        isSignature: raw.metadata?.signature || false,
+        isSignature: isSignature,
         isAlternateArt: raw.metadata?.alternate_art || false,
     };
 }
