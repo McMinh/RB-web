@@ -1,16 +1,18 @@
 [
     {
-        "id": "UNL-060/219",
-        "name": "Vilemaw",
-        "type": "Unit",
-        "domain": "Chaos",
-        "rarity": "Rare"
-    },
-    {
-        "id": "OGN-001/298",
-        "name": "Master Yi",
-        "type": "Champion",
-        "domain": "Body",
-        "rarity": "Legendary"
+        "id": "OGN-296",
+        "name": "Void Gate",
+        "type": "Battlefield",
+        "domain": "Colorless",
+        "rarity": "Uncommon",
+        "set": "Origins",
+        "energy": 3,
+        "might": 0,
+        "power": 0,
+        "text": "Spells and abilities affecting units here each deal 1 Bonus Damage.",
+        "image": "https://images.riftcodex.com/cards/OGN-296.webp",
+        "marketPrice": 0.14,
+        "foilPrice": 0.52,
+        "priceChange7d": 0.0
     }
 ]
