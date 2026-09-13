@@ -80,13 +80,33 @@ header h1 {
 .toolbar input,
 .toolbar select {
     padding: 10px 14px;
-    background: rgba(255, 255, 255, 0.08);
+    background: #1a1a2e;
     border: 1px solid rgba(255, 255, 255, 0.15);
     border-radius: 8px;
     color: #fff;
     font-size: 0.9em;
     flex: 1;
     min-width: 150px;
+}
+
+/* Fix option bên trong dropdown */
+.toolbar select option {
+    background: #1a1a2e;
+    color: #fff;
+    padding: 8px;
+}
+
+/* Highlight option khi hover/chọn */
+.toolbar select option:checked,
+.toolbar select option:hover {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: #fff;
+}
+
+/* Đảm bảo placeholder text hiện đúng */
+.toolbar input::placeholder {
+    color: #888;
+    opacity: 1;
 }
 
 .toolbar input::placeholder {
