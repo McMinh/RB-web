@@ -401,3 +401,5 @@ code {
     font-weight: bold;
     z-index: 2;
 }
+
+.tag.domain-Colorless { background: #95a5a633; color: #bdc3c7; }

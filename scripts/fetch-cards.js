@@ -91,42 +91,54 @@ async function fetchAllCards() {
 // CHUẨN HÓA DỮ LIỆU
 // ============================================
 function normalizeCard(raw) {
-    const publicCode = (raw.public_code || raw.id || '').split('/')[0];
+    // === ID thẻ: riftbound_id có dạng "unl-229*-219" ===
+    // Chuẩn hóa thành "UNL-229" (uppercase, bỏ phần *-219)
+    let id = raw.riftbound_id || raw.id || '';
+    id = id.split('*')[0].split('/')[0].toUpperCase();  // "unl-229" → "UNL-229"
     
-    // Domain có thể là array hoặc string
-    let domain = raw.classification?.domain || raw.domain || '';
-    if (Array.isArray(domain)) domain = domain[0] || '';
+    // === Domain: có thể là array nhiều domain ===
+    let domain = raw.classification?.domain || [];
+    if (!Array.isArray(domain)) domain = [domain];
+    // Lấy domain chính (hoặc ghép nếu nhiều)
+    const domainStr = domain.length > 1 
+        ? domain.join('/')       // "Fury/Order"
+        : (domain[0] || '');
     
-    // Ảnh: Riftcodex có thể trả nhiều format
-    let image = '';
-    if (raw.images && Array.isArray(raw.images) && raw.images.length > 0) {
-        const img = raw.images[0];
-        image = img.medium || img.large || img.small || img.url || '';
-    } else if (raw.image) {
-        image = raw.image;
-    } else {
-        // Fallback URL đoán — test trong trình duyệt trước
-        image = `https://images.riftcodex.com/cards/${publicCode}.webp`;
-    }
+    // === Ảnh: media.image_url ===
+    const image = raw.media?.image_url || '';
     
-    // Text
-    let text = '';
-    if (raw.text?.plain) text = raw.text.plain;
-    else if (Array.isArray(raw.rules) && raw.rules.length > 0) text = raw.rules[0];
-    else if (raw.text) text = String(raw.text);
+    // === Text ===
+    const text = raw.text?.plain || '';
+    
+    // === Set ===
+    const set = raw.set?.label || raw.set?.set_id || '';
+    
+    // === Rarity: giữ nguyên ===
+    const rarity = raw.classification?.rarity || '';
+    
+    // === Type ===
+    const type = raw.classification?.type || '';
+    const supertype = raw.classification?.supertype || '';
     
     return {
-        id: publicCode,
+        id: id,
         name: raw.name || '',
-        type: raw.classification?.type || raw.type || '',
-        domain: domain,
-        rarity: raw.classification?.rarity || raw.rarity || '',
-        set: raw.set?.label || raw.set || '',
-        energy: raw.attributes?.energy ?? raw.energy ?? null,
-        might: raw.attributes?.might ?? raw.might ?? null,
-        power: raw.attributes?.power ?? raw.power ?? null,
+        type: type,
+        supertype: supertype,
+        domain: domainStr,
+        rarity: rarity,
+        set: set,
+        energy: raw.attributes?.energy ?? null,
+        might: raw.attributes?.might ?? null,
+        power: raw.attributes?.power ?? null,
         text: text,
         image: image,
+        artist: raw.media?.artist || '',
+        tcgplayerId: raw.tcgplayer_id ? parseInt(raw.tcgplayer_id) : null,
+        collectorNumber: raw.collector_number ?? null,
+        tags: raw.tags || [],
+        isSignature: raw.metadata?.signature || false,
+        isAlternateArt: raw.metadata?.alternate_art || false,
     };
 }
 

@@ -177,7 +177,13 @@ function cardHTML(card, qty, id, showActions = false) {
 
     // Tags
     const tags = [];
-    if (domain) tags.push(`<span class="tag domain-${domain}">${domain}</span>`);
+    if (domain) {
+    // Tách nhiều domain: "Fury/Order" → ["Fury", "Order"]
+    const domains = domain.split('/');
+    domains.forEach(d => {
+        if (d) tags.push(`<span class="tag domain-${d}">${d}</span>`);
+    });
+}
     if (rarity) tags.push(`<span class="tag rarity-${rarity}">${rarity}</span>`);
     if (type) tags.push(`<span class="tag">${escapeHTML(type)}</span>`);
 
