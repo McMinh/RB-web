@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Riftbound Collection Manager</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <header>
+        <h1>⚔️ Riftbound Collection</h1>
+        <p class="subtitle">Quản lý bộ sưu tập thẻ Riftbound TCG của bạn</p>
+    </header>
+
+    <nav class="tabs">
+        <button class="tab active" data-tab="collection">📚 Bộ sưu tập</button>
+        <button class="tab" data-tab="search">🔍 Tìm thẻ</button>
+        <button class="tab" data-tab="import">📥 Import</button>
+        <button class="tab" data-tab="stats">📊 Thống kê</button>
+    </nav>
+
+    <main>
+        <!-- TAB: BỘ SƯU TẬP -->
+        <section id="tab-collection" class="tab-content active">
+            <div class="toolbar">
+                <input type="text" id="filter-collection" placeholder="Lọc theo tên...">
+                <select id="sort-collection">
+                    <option value="name">Sắp xếp: Tên</option>
+                    <option value="quantity">Sắp xếp: Số lượng</option>
+                    <option value="domain">Sắp xếp: Domain</option>
+                    <option value="rarity">Sắp xếp: Rarity</option>
+                </select>
+                <button id="export-json" class="btn">💾 Export JSON</button>
+                <button id="export-csv" class="btn">📄 Export CSV</button>
+                <button id="clear-collection" class="btn btn-danger">🗑️ Xóa hết</button>
+            </div>
+            <div id="collection-stats" class="stats-bar"></div>
+            <div id="collection-list" class="card-grid"></div>
+        </section>
+
+        <!-- TAB: TÌM THẺ -->
+        <section id="tab-search" class="tab-content">
+            <div class="toolbar">
+                <input type="text" id="search-input" placeholder="Tìm theo tên thẻ...">
+                <select id="filter-domain">
+                    <option value="">Tất cả Domain</option>
+                    <option value="Chaos">Chaos</option>
+                    <option value="Order">Order</option>
+                    <option value="Body">Body</option>
+                    <option value="Mind">Mind</option>
+                    <option value="Calm">Calm</option>
+                    <option value="Fury">Fury</option>
+                </select>
+                <select id="filter-rarity">
+                    <option value="">Tất cả Rarity</option>
+                    <option value="Common">Common</option>
+                    <option value="Uncommon">Uncommon</option>
+                    <option value="Rare">Rare</option>
+                    <option value="Epic">Epic</option>
+                    <option value="Legendary">Legendary</option>
+                </select>
+            </div>
+            <div id="search-results" class="card-grid"></div>
+        </section>
+
+        <!-- TAB: IMPORT -->
+        <section id="tab-import" class="tab-content">
+            <div class="import-section">
+                <h2>📥 Import từ CSV</h2>
+                <p>File CSV cần có cột <code>card_id</code> và <code>quantity</code>. Hỗ trợ UTF-8.</p>
+                <input type="file" id="csv-file" accept=".csv">
+                <label>
+                    <input type="checkbox" id="import-replace"> Thay thế bộ sưu tập hiện có
+                </label>
+                <button id="import-btn" class="btn">Import</button>
+                <div id="import-log" class="log"></div>
+            </div>
+
+            <div class="import-section">
+                <h2>✍️ Thêm thủ công</h2>
+                <input type="text" id="manual-id" placeholder="Card ID (vd: UNL-060/219)">
+                <input type="number" id="manual-qty" value="1" min="1">
+                <button id="manual-add" class="btn">Thêm</button>
+            </div>
+
+            <div class="import-section">
+                <h2>📋 Tải file mẫu</h2>
+                <button id="download-template" class="btn">Tải template.csv</button>
+            </div>
+        </section>
+
+        <!-- TAB: THỐNG KÊ -->
+        <section id="tab-stats" class="tab-content">
+            <div id="stats-content"></div>
+        </section>
+    </main>
+
+    <footer>
+        <p>Dữ liệu lưu cục bộ trên trình duyệt (LocalStorage).</p>
+    </footer>
+
+    <script src="app.js"></script>
+</body>
+</html>

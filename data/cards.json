@@ -1,0 +1,16 @@
+[
+    {
+        "id": "UNL-060/219",
+        "name": "Vilemaw",
+        "type": "Unit",
+        "domain": "Chaos",
+        "rarity": "Rare"
+    },
+    {
+        "id": "OGN-001/298",
+        "name": "Master Yi",
+        "type": "Champion",
+        "domain": "Body",
+        "rarity": "Legendary"
+    }
+]
