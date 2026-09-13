@@ -431,3 +431,202 @@ code {
 .tag.domain-Chaos { background: #c0392b33; color: #ff6b6b; }
 
 .tag.rarity-Legend { background: #f39c1233; color: #f39c12; }
+
+/* ============================================
+   MODAL XEM ẢNH LỚN
+   ============================================ */
+.modal {
+    display: none;
+    position: fixed;
+    z-index: 1000;
+    left: 0;
+    top: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.92);
+    backdrop-filter: blur(8px);
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+}
+
+.modal.active {
+    display: flex;
+}
+
+.modal-inner {
+    display: flex;
+    gap: 30px;
+    max-width: 1200px;
+    max-height: 90vh;
+    background: rgba(20, 20, 40, 0.95);
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
+    animation: modalZoom 0.3s ease;
+    position: relative;
+}
+
+@keyframes modalZoom {
+    from { transform: scale(0.85); opacity: 0; }
+    to { transform: scale(1); opacity: 1; }
+}
+
+.modal-content {
+    max-width: 400px;
+    max-height: 80vh;
+    border-radius: 12px;
+    object-fit: contain;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6);
+}
+
+.modal-info {
+    flex: 1;
+    color: #e0e0e0;
+    min-width: 280px;
+    max-width: 400px;
+    overflow-y: auto;
+    max-height: 80vh;
+}
+
+.modal-info h2 {
+    color: #fff;
+    font-size: 1.6em;
+    margin-bottom: 8px;
+    background: linear-gradient(90deg, #f39c12, #e74c3c);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+}
+
+.modal-info #modal-id {
+    color: #888;
+    font-family: monospace;
+    margin-bottom: 16px;
+    font-size: 0.95em;
+}
+
+#modal-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 20px;
+}
+
+#modal-actions {
+    padding-top: 16px;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.modal-close {
+    position: absolute;
+    top: 15px;
+    right: 25px;
+    color: white;
+    font-size: 40px;
+    font-weight: bold;
+    cursor: pointer;
+    z-index: 1001;
+    line-height: 1;
+    transition: color 0.2s, transform 0.2s;
+}
+
+.modal-close:hover {
+    color: #e74c3c;
+    transform: scale(1.15);
+}
+
+/* Responsive modal */
+@media (max-width: 768px) {
+    .modal-inner {
+        flex-direction: column;
+        padding: 20px;
+    }
+    .modal-content {
+        max-width: 100%;
+        max-height: 40vh;
+    }
+}
+
+/* ============================================
+   NÚT THÊM/BỚT TRONG CARD
+   ============================================ */
+.card-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 12px;
+    align-items: center;
+}
+
+.card-actions button {
+    padding: 6px 12px;
+    font-size: 0.9em;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.15);
+    color: #ccc;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.2s;
+    font-weight: bold;
+}
+
+.card-actions button:hover {
+    background: rgba(255, 255, 255, 0.15);
+    color: #fff;
+    transform: translateY(-1px);
+}
+
+.card-actions .btn-del:hover {
+    background: rgba(231, 76, 60, 0.3);
+    color: #e74c3c;
+}
+
+.card-actions .btn-add {
+    flex: 1;
+    background: linear-gradient(135deg, #27ae60, #16a085);
+    color: white;
+    border: none;
+    padding: 8px;
+    font-weight: 500;
+}
+
+.card-actions .btn-add:hover {
+    background: linear-gradient(135deg, #2ecc71, #1abc9c);
+    box-shadow: 0 4px 12px rgba(39, 174, 96, 0.4);
+}
+
+.card-actions .qty-display {
+    min-width: 32px;
+    text-align: center;
+    font-weight: bold;
+    color: #f39c12;
+    font-size: 1.1em;
+}
+
+/* Card image cursor để biết có thể click */
+.card-image img {
+    cursor: zoom-in;
+}
+
+.card-image {
+    position: relative;
+    overflow: hidden;
+}
+
+.card-image::after {
+    content: '🔍';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(0);
+    font-size: 2.5em;
+    opacity: 0;
+    transition: all 0.3s ease;
+    pointer-events: none;
+    text-shadow: 0 0 10px rgba(0, 0, 0, 0.8);
+}
+
+.card-image:hover::after {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.85;
+}

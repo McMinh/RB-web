@@ -14,6 +14,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     setupTabs();
     setupEventListeners();
     populateFilters();
+    setupModal();
     renderCollection();
     renderStats();
     renderSearchResults();
@@ -148,6 +149,7 @@ function renderCollection() {
     }
 
     container.innerHTML = entries.map(e => cardHTML(e.card, e.qty, e.id, true)).join('');
+    attachCardEvents(container);
     setupLazyLoad();
 
     // Gắn sự kiện
@@ -171,20 +173,14 @@ function cardHTML(card, qty, id, showActions = false) {
     const rarity = card?.rarity || '';
     const type = card?.type || '';
     const image = card?.image || '';
-    const price = card?.marketPrice;
-    const priceHTML = price != null 
-    ? `<div class="card-price">$${price.toFixed(2)}</div>` 
-    : '';
 
     // Tags
     const tags = [];
     if (domain) {
-    // Tách nhiều domain: "Fury/Order" → ["Fury", "Order"]
-    const domains = domain.split('/');
-    domains.forEach(d => {
-        if (d) tags.push(`<span class="tag domain-${d}">${d}</span>`);
-    });
-}
+        domain.split('/').forEach(d => {
+            if (d) tags.push(`<span class="tag domain-${d}">${d}</span>`);
+        });
+    }
     if (rarity) tags.push(`<span class="tag rarity-${rarity}">${rarity}</span>`);
     if (type) tags.push(`<span class="tag">${escapeHTML(type)}</span>`);
 
@@ -193,11 +189,34 @@ function cardHTML(card, qty, id, showActions = false) {
         ? `<img src="${escapeHTML(image)}" 
                 alt="${escapeHTML(name)}" 
                 loading="lazy"
+                data-card-id="${escapeHTML(id)}"
+                class="card-thumb"
                 onerror="this.parentElement.innerHTML='<div class=\\'card-image-placeholder\\'>🃏</div>'">`
         : `<div class="card-image-placeholder">🃏</div>`;
 
+    // Nút hành động
+    let actionsHTML = '';
+    if (qty > 0) {
+        actionsHTML = `
+            <div class="card-actions">
+                <button data-action="dec" data-id="${escapeHTML(id)}" title="Giảm">−</button>
+                <span class="qty-display">${qty}</span>
+                <button data-action="inc" data-id="${escapeHTML(id)}" title="Tăng">+</button>
+                <button data-action="del" data-id="${escapeHTML(id)}" title="Xóa" class="btn-del">🗑️</button>
+            </div>
+        `;
+    } else {
+        actionsHTML = `
+            <div class="card-actions">
+                <button data-action="inc" data-id="${escapeHTML(id)}" class="btn-add">
+                    ➕ Thêm vào bộ sưu tập
+                </button>
+            </div>
+        `;
+    }
+
     return `
-        <div class="card-item">
+        <div class="card-item" data-card-id="${escapeHTML(id)}">
             <div class="card-image">
                 ${imageHTML}
                 ${qty > 0 ? `<div class="card-qty-badge">${qty}</div>` : ''}
@@ -206,13 +225,7 @@ function cardHTML(card, qty, id, showActions = false) {
                 <div class="card-name">${escapeHTML(name)}</div>
                 <div class="card-id">${escapeHTML(id)}</div>
                 <div class="card-meta">${tags.join('')}</div>
-                ${showActions ? `
-                    <div class="card-actions">
-                        <button data-action="dec" data-id="${escapeHTML(id)}">−</button>
-                        <button data-action="inc" data-id="${escapeHTML(id)}">+</button>
-                        <button data-action="del" data-id="${escapeHTML(id)}">🗑️</button>
-                    </div>
-                ` : ''}
+                ${actionsHTML}
             </div>
         </div>
     `;
@@ -290,6 +303,9 @@ function renderSearchResults() {
     const rarity = document.getElementById('filter-rarity').value;
     const container = document.getElementById('search-results');
 
+    // Lấy bộ sưu tập để check số lượng thực tế
+    const collection = loadCollection();
+
     let results = cardDatabase.filter(c => {
         if (q && !c.name.toLowerCase().includes(q) && !c.id.toLowerCase().includes(q)) return false;
         if (domain && !c.domain.split('/').map(d => d.trim()).includes(domain)) return false;
@@ -304,8 +320,17 @@ function renderSearchResults() {
 
     // Giới hạn 200 kết quả để tránh lag
     const display = results.slice(0, 200);
-    container.innerHTML = display.map(c => cardHTML(c, 0, c.id, false)).join('')
-        + (results.length > 200 ? `<div class="empty">... và ${results.length - 200} thẻ khác</div>` : '');
+    
+    container.innerHTML = display.map(c => {
+        const qty = collection[c.id] || 0;    // ← LẤY SỐ LƯỢNG THỰC TẾ
+        return cardHTML(c, qty, c.id, true);  // ← LUÔN HIỆN NÚT
+    }).join('')
+    + (results.length > 200 
+        ? `<div class="empty">... và ${results.length - 200} thẻ khác</div>` 
+        : '');
+
+    // ← GẮN SỰ KIỆN CHO NÚT + CLICK ẢNH
+    attachCardEvents(container);
 }
 
 // ============================================
@@ -585,4 +610,138 @@ function populateFilters() {
     console.log(`✅ Đã tạo filter: ${domainList.length} domains, ${rarityList.length} rarities`);
     console.log('   Domains:', domainList.join(', '));
     console.log('   Rarities:', rarityList.join(', '));
+}
+
+// ============================================
+// GẮN SỰ KIỆN CHO CARD (nút + click ảnh)
+// ============================================
+function attachCardEvents(container) {
+    // Nút thêm/bớt/xóa
+    container.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const id = btn.dataset.id;
+            const action = btn.dataset.action;
+            if (action === 'inc') changeQty(id, 1);
+            if (action === 'dec') changeQty(id, -1);
+            if (action === 'del') {
+                if (confirm(`Xóa thẻ ${id} khỏi bộ sưu tập?`)) {
+                    changeQty(id, -9999);
+                }
+            }
+        });
+    });
+
+    // Click vào ảnh → mở modal
+    container.querySelectorAll('.card-thumb').forEach(img => {
+        img.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const cardId = img.dataset.cardId;
+            openImageModal(cardId);
+        });
+    });
+}
+
+// ============================================
+// MODAL XEM ẢNH LỚN
+// ============================================
+function openImageModal(cardId) {
+    const card = cardMap[cardId];
+    if (!card) return;
+
+    const modal = document.getElementById('image-modal');
+    const modalImg = document.getElementById('modal-img');
+    const title = document.getElementById('modal-title');
+    const idEl = document.getElementById('modal-id');
+    const tagsEl = document.getElementById('modal-tags');
+    const actionsEl = document.getElementById('modal-actions');
+
+    modalImg.src = card.image || '';
+    modalImg.alt = card.name;
+    title.textContent = card.name;
+    idEl.textContent = card.id;
+
+    // Tags
+    const tags = [];
+    if (card.domain) {
+        card.domain.split('/').forEach(d => {
+            if (d) tags.push(`<span class="tag domain-${d}">${d}</span>`);
+        });
+    }
+    if (card.rarity) tags.push(`<span class="tag rarity-${card.rarity}">${card.rarity}</span>`);
+    if (card.type) tags.push(`<span class="tag">${card.type}</span>`);
+    if (card.set) tags.push(`<span class="tag">${card.set}</span>`);
+    tagsEl.innerHTML = tags.join('');
+
+    // Nút hành động trong modal
+    const collection = loadCollection();
+    const qty = collection[cardId] || 0;
+
+    if (qty > 0) {
+        actionsEl.innerHTML = `
+            <p style="color: #f39c12; margin-bottom: 12px; font-weight: bold;">
+                Đang có: ${qty} thẻ
+            </p>
+            <div class="card-actions">
+                <button data-action="dec" data-id="${cardId}">−</button>
+                <span class="qty-display">${qty}</span>
+                <button data-action="inc" data-id="${cardId}">+</button>
+                <button data-action="del" data-id="${cardId}" class="btn-del">🗑️ Xóa hết</button>
+            </div>
+        `;
+    } else {
+        actionsEl.innerHTML = `
+            <p style="color: #888; margin-bottom: 12px;">Chưa có trong bộ sưu tập</p>
+            <div class="card-actions">
+                <button data-action="inc" data-id="${cardId}" class="btn-add">
+                    ➕ Thêm vào bộ sưu tập
+                </button>
+            </div>
+        `;
+    }
+
+    // Gắn sự kiện cho nút trong modal
+    actionsEl.querySelectorAll('[data-action]').forEach(btn => {
+        btn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const action = btn.dataset.action;
+            const id = btn.dataset.id;
+            if (action === 'inc') changeQty(id, 1);
+            if (action === 'dec') changeQty(id, -1);
+            if (action === 'del') {
+                if (confirm(`Xóa thẻ ${id} khỏi bộ sưu tập?`)) {
+                    changeQty(id, -9999);
+                }
+            }
+            // Refresh modal sau khi thay đổi
+            openImageModal(id);
+        });
+    });
+
+    modal.classList.add('active');
+    document.body.style.overflow = 'hidden';
+}
+
+function closeImageModal() {
+    const modal = document.getElementById('image-modal');
+    modal.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+function setupModal() {
+    const modal = document.getElementById('image-modal');
+    const closeBtn = modal.querySelector('.modal-close');
+
+    // Click nút X
+    closeBtn.addEventListener('click', closeImageModal);
+
+    // Click background
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeImageModal();
+    });
+
+    // ESC
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') closeImageModal();
+    });
 }
