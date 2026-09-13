@@ -4,7 +4,7 @@ Trang web quản lý bộ sưu tập thẻ Riftbound TCG.
 
 ## 🌐 Demo
 
-https://McMinh.github.io/riftbound-collection/
+https://mcminh.github.io/RB-web/
 
 ## ✨ Tính năng
 

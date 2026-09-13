@@ -13,6 +13,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     await loadCardDatabase();
     setupTabs();
     setupEventListeners();
+    populateFilters();
     renderCollection();
     renderStats();
     renderSearchResults();
@@ -291,7 +292,7 @@ function renderSearchResults() {
 
     let results = cardDatabase.filter(c => {
         if (q && !c.name.toLowerCase().includes(q) && !c.id.toLowerCase().includes(q)) return false;
-        if (domain && c.domain !== domain) return false;
+        if (domain && !c.domain.split('/').map(d => d.trim()).includes(domain)) return false;
         if (rarity && c.rarity !== rarity) return false;
         return true;
     });
@@ -538,4 +539,50 @@ function setupLazyLoad() {
     }, { rootMargin: '200px' });
 
     document.querySelectorAll('img[data-src]').forEach(img => observer.observe(img));
+}
+
+// ============================================
+// SINH DROPDOWN TỰ ĐỘNG TỪ DỮ LIỆU
+// ============================================
+function populateFilters() {
+    const domains = new Set();
+    const rarities = new Set();
+    
+    cardDatabase.forEach(card => {
+        // Domain có thể là "Fury" hoặc "Fury/Order"
+        if (card.domain) {
+            card.domain.split('/').forEach(d => {
+                if (d) domains.add(d.trim());
+            });
+        }
+        if (card.rarity) rarities.add(card.rarity);
+    });
+    
+    // Sắp xếp
+    const domainList = [...domains].sort();
+    const rarityList = [...rarities].sort();
+    
+    // Fill dropdown Domain
+    const domainSelect = document.getElementById('filter-domain');
+    domainSelect.innerHTML = '<option value="">Tất cả Domain</option>';
+    domainList.forEach(d => {
+        const opt = document.createElement('option');
+        opt.value = d;
+        opt.textContent = d;
+        domainSelect.appendChild(opt);
+    });
+    
+    // Fill dropdown Rarity
+    const raritySelect = document.getElementById('filter-rarity');
+    raritySelect.innerHTML = '<option value="">Tất cả Rarity</option>';
+    rarityList.forEach(r => {
+        const opt = document.createElement('option');
+        opt.value = r;
+        opt.textContent = r;
+        raritySelect.appendChild(opt);
+    });
+    
+    console.log(`✅ Đã tạo filter: ${domainList.length} domains, ${rarityList.length} rarities`);
+    console.log('   Domains:', domainList.join(', '));
+    console.log('   Rarities:', rarityList.join(', '));
 }
