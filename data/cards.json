@@ -1,11 +1,11 @@
 [
   {
-    "id": "UNL-229",
+    "id": "UNL-229*",
     "name": "Vi - Piltover Enforcer (Signature)",
     "type": "Legend",
     "supertype": "",
     "domain": "Fury/Order",
-    "rarity": "Rare",
+    "rarity": "Showcase",
     "set": "Unleashed",
     "energy": null,
     "might": null,
@@ -45,12 +45,12 @@
     "isAlternateArt": false
   },
   {
-    "id": "UNL-116A",
+    "id": "UNL-116a",
     "name": "Poppy - Paragon (Alternate Art)",
     "type": "Unit",
     "supertype": "Champion",
     "domain": "Body",
-    "rarity": "Rare",
+    "rarity": "Showcase",
     "set": "Unleashed",
     "energy": 5,
     "might": 5,
@@ -281,12 +281,12 @@
     "isAlternateArt": false
   },
   {
-    "id": "UNL-229",
+    "id": "UNL-229*",
     "name": "Vi - Piltover Enforcer (Overnumbered)",
     "type": "Legend",
     "supertype": "",
     "domain": "Fury/Order",
-    "rarity": "Rare",
+    "rarity": "Showcase",
     "set": "Unleashed",
     "energy": null,
     "might": null,
