@@ -111,12 +111,12 @@
     "isAlternateArt": false
   },
   {
-    "id": "UNL-029A",
+    "id": "UNL-029a",
     "name": "Red Brambleback (Alternate Art)",
     "type": "Unit",
     "supertype": "",
     "domain": "Fury",
-    "rarity": "Epic",
+    "rarity": "Showcase",
     "set": "Unleashed",
     "energy": 4,
     "might": 4,
@@ -386,12 +386,12 @@
     "isAlternateArt": false
   },
   {
-    "id": "UNL-172A",
+    "id": "UNL-172a",
     "name": "LeBlanc - Fragmented (Alternate Art)",
     "type": "Unit",
     "supertype": "Champion",
     "domain": "Order",
-    "rarity": "Rare",
+    "rarity": "Showcase",
     "set": "Unleashed",
     "energy": 3,
     "might": 3,
@@ -499,12 +499,12 @@
     "isAlternateArt": false
   },
   {
-    "id": "UNL-228",
+    "id": "UNL-228*",
     "name": "Pyke - Bloodharbor Ripper (Overnumbered)",
     "type": "Legend",
     "supertype": "",
     "domain": "Fury/Chaos",
-    "rarity": "Rare",
+    "rarity": "Showcase",
     "set": "Unleashed",
     "energy": null,
     "might": null,
